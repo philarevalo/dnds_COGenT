@@ -1,0 +1,10 @@
+name: dnds
+channels:
+- biocore
+- bioconda
+- r
+dependencies:
+- snakemake=3.7.1=py35_0
+- biopython=1.67=np111py35_0
+- mafft=7.245=0
+- r-base=3.4.1

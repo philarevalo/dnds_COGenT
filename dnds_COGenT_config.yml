@@ -1,0 +1,25 @@
+unaligned_nt_file:
+    # path to file with unaligned proteins
+    "test_data/test.unaligned.nt.fasta"
+
+unaligned_protein_file:
+    # path to file with unaligned proteins
+    "test_data/test.unaligned.aa.fasta"
+
+group_file:
+    # Clusters from PopCOGenT
+    "test_data/test_clust.csv"
+
+group_type:
+    # The groups you want to use to define within- vs. between- group dn/ds. 
+    # Main_cluster corresponds roughly to species-level groups, i.e., completely disconnected groups in a gene transfer network.
+    # Cluster_ID corresponds to population-level clustering (more fine-grained) 
+    "Main_cluster"
+
+result_file_prefix:
+    #Prefix for output files to uniquely identify related outputs.
+    "test.dnds"
+
+output_directory:
+    #Directory for pipeline outputs. Will be created if it does not already exist
+    "test_output/"
