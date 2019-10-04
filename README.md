@@ -18,7 +18,7 @@ This also requires the `seqinr` and `reshape2` packages in R. To sintall To inst
 
 To run, set the parameters in the `dnds_COGenT_config.yml` file. Then, run the runscript as follows: `bash dnds_COGenT.run.sh`
 
-Your input sequence files should be in `fasta` format and there should only be one entry per strain in each file. The names of the sequences should just be the strain name as in the test example and these strain names should match the strain names in the population file.
+Your input sequence files should be in `fasta` format and there should only be one entry per strain in each file. The names of the sequences should just be the strain name as in the test example and these strain names should match the strain names in the population file. The amino acid and nucleotide sequences should have filenames similar to the format of the test example files.
 
 # References
 
