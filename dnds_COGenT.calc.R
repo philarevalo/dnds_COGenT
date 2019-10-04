@@ -7,6 +7,7 @@ infile = args[1]
 groupfile = args[2]
 group_type = args[3]
 outfile = args[4]
+prot = strsplit(basename(infile), split='.', fixed=TRUE)[[1]][[1]]
 
 groups = read.csv(groupfile, row.names='Strain')
 
@@ -36,5 +37,6 @@ omega = na.omit(omega)
 colnames(omega) = c('Strain1', 'Strain2', 'dnds')
 
 omega = transform(omega, diff_group=is_in_diff_group(Strain1, Strain2))
+omega = transform(omega, prot=prot)
 
 write.csv(omega, outfile, row.names=FALSE)

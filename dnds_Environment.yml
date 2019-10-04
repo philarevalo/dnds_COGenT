@@ -8,3 +8,4 @@ dependencies:
 - biopython=1.67=np111py35_0
 - mafft=7.245=0
 - r-base=3.4.1
+- pandas=0.20.3=py35_0
