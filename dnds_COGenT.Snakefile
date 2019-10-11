@@ -9,6 +9,8 @@ in Hehemann et al., 2016 (doi:10.1038/ncomms12860).
 from Bio import SeqIO
 import glob
 import pandas as pd
+from itertools import combinations
+import os
 
 
 configfile:
@@ -18,18 +20,25 @@ contig_wildcard_string = config["protein_directory"] + "/*" + config["unaligned_
 prots = [f.split('/')[-1].replace(config["unaligned_nt_ext"], "") for f in glob.glob(contig_wildcard_string)]
 rule target:    
     input:
-        config["output_directory"] + 'dnds_consolidated.csv'
+        config["output_directory"] + 'dnds_consolidated.csv',
+        div=config["output_directory"] + 'div_consolidated.csv'
         #config["output_directory"] + config['result_file_prefix'] + ".dnds.csv"
 
 rule consolidate_results:
     input:
-        expand(config["output_directory"] + "{prot}.dnds.csv", prot=prots)
+        dnds=expand(config["output_directory"] + "{prot}.dnds.csv", prot=prots),
+        div=expand(config["output_directory"] + "{prot}.div.csv", prot=prots)
     output: 
-        config["output_directory"] + 'dnds_consolidated.csv'
+        dnds=config["output_directory"] + 'dnds_consolidated.csv',
+        div=config["output_directory"] + 'div_consolidated.csv'
     run:
-        all_results = [pd.read_csv(f) for f in input]
+        all_results = [pd.read_csv(f) for f in input['dnds']]
         df = pd.concat(all_results)
-        df.to_csv(str(output), index=False)
+        df.to_csv(str(output['dnds']), index=False)
+
+        all_results = [pd.read_csv(f) for f in input['div']]
+        df = pd.concat(all_results)
+        df.to_csv(str(output['div']), index=False)
 
 
 rule get_dn_ds:
@@ -40,6 +49,50 @@ rule get_dn_ds:
         config["output_directory"] + "{prot}.dnds.csv"
     shell:
         "Rscript dnds_COGenT.calc.R {input} {config[group_file]} {config[group_type]} {output}"
+
+rule get_diversity:
+    input:
+        aa=config["output_directory"] + '{prot}.aa.aln.fasta',
+        nt=config["output_directory"] + "{prot}.pal2nal.nt.fasta"
+    output:
+        config["output_directory"] + "{prot}.div.csv"
+    run:
+        populations = pd.read_csv(config['group_file'], index_col='Strain', sep='\t')
+        seqs_aa = {s.id: str(s.seq) for s in SeqIO.parse(str(input['aa']), 'fasta')}
+        seqs_nt = {s.id: str(s.seq) for s in SeqIO.parse(str(input['nt']), 'fasta')}
+        new_rows = []
+        prot = os.path.basename(str(input['aa'])).replace('.aa.aln.fasta', '')
+        for i1, i2 in combinations(list(seqs_aa.keys()), 2):
+            p1 = str(populations.loc[i1, config['group_type']])
+            p2 = str(populations.loc[i2, config['group_type']])
+            s1 = seqs_aa[i1]
+            s2 = seqs_aa[i2]
+
+
+            diffs_aa = 0
+            length_aa = 0
+            for b1, b2 in zip(s1, s2):
+                if b1 != '-' and b2 != '-':
+                    length_aa += 1
+                    if b1 != b2:
+                        diffs_aa += 1
+
+            s1 = seqs_nt[i1]
+            s2 = seqs_nt[i2]
+            diffs_nt = 0
+            length_nt = 0
+            for b1, b2 in zip(s1, s2):
+                if b1 != '-' and b2 != '-':
+                    length_nt += 1
+                    if b1 != b2:
+                        diffs_nt += 1
+
+
+            new_rows.append([i1, i2, int(p1!=p2), '-'.join(sorted([p1, p2])), diffs_aa, length_aa, diffs_aa/length_aa, diffs_nt, length_nt, diffs_nt/length_nt, prot])
+
+        df = pd.DataFrame(new_rows, columns=['Strain1', 'Strain2', 'diff_group', 'pop_pair', 'AA Differences', 'AA Length', 'AA Divergence', 'NT Differences', 'NT Length', 'NT Divergence', 'prot'])
+        df.to_csv(str(output), index=False)
+
 
 rule align_prots:
     input:

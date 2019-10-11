@@ -8,12 +8,12 @@ unaligned_aa_ext:
 
 protein_directory:
     # directory where unaligned proteins are
-    "test_data/"
+    "vib_all_core_ribos/"
 
 group_file:
     # Clusters from PopCOGenT
-    "test_data/test_clust.csv"
-
+    #"test_data/test_clust.csv"
+    "vib_all_core_ribos/vib_all_0.000355362.txt.cluster.tab.txt"
 group_type:
     # The groups you want to use to define within- vs. between- group dn/ds. 
     # Main_cluster corresponds roughly to species-level groups, i.e., completely disconnected groups in a gene transfer network.
@@ -22,4 +22,4 @@ group_type:
 
 output_directory:
     #Directory for pipeline outputs. Will be created if it does not already exist
-    "test_output/"
+    "vib_output/"
